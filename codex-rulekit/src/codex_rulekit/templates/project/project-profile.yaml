@@ -1,0 +1,15 @@
+name: example-project
+project_type: coding
+risk_level: low
+tags:
+  - general
+context_description: >
+  Describe what this project optimizes for, what it should avoid,
+  and any constraints that should affect rule selection.
+force_include: []
+exclude_rules: []
+# Optional scope signals for future governance / matching:
+# team_size: solo
+# iteration_speed: medium
+# execution_mode: production
+# defect_focus: [ui, regression]

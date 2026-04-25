@@ -1,0 +1,45 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows-validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install test dependencies
+        shell: powershell
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install PyYAML pytest
+
+      - name: Run codex-rulekit tests
+        shell: powershell
+        run: |
+          Push-Location .\codex-rulekit
+          $env:PYTHONPATH = (Resolve-Path .\src).Path
+          python -m unittest discover -s .\tests -p "test_*.py"
+          Pop-Location
+
+      - name: Run prune-mem tests
+        shell: powershell
+        run: |
+          Push-Location .\prune-mem
+          $env:PYTHONPATH = (Resolve-Path .\src).Path
+          python -m pytest .\tests -q
+          Pop-Location
+
+      - name: Run release check
+        shell: powershell
+        run: |
+          python .\scripts\release_check.py
