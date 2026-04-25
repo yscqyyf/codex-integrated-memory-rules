@@ -93,12 +93,12 @@ def test_session_end_ingests_transcript_and_logs_usage():
     workspace = make_local_workspace()
     transcript = ROOT / "examples" / "transcript.json"
 
-    payload = run_script("session_end.py", str(transcript), workspace=workspace)
+    payload = run_script("session_end.py", str(transcript), "--backend", "heuristic", workspace=workspace)
 
     assert payload["session"]["session_id"] == "transcript-demo-1"
     assert payload["candidate_count"] == 2
     assert payload["backend_used"] == "heuristic"
-    assert payload["fallback_used"] is True
+    assert payload["fallback_used"] is False
     assert payload["report"]["memory_count"] == 2
     assert payload["usage_eval_path"] == str(workspace / "data" / "usage_eval.jsonl")
 
