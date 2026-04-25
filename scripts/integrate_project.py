@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -19,6 +20,13 @@ TRANSCRIPT_VERSION = 1
 CODEX_AGENTS_PREFIX = "# AGENTS.md instructions for "
 
 
+@dataclass(slots=True)
+class StateStore:
+    root: Path
+    mode: str
+    fallback_reason: str | None = None
+
+
 def run(
     command: list[str],
     cwd: Path | None = None,
@@ -33,6 +41,7 @@ def run(
         env=process_env,
         text=True,
         encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
@@ -72,12 +81,43 @@ def resolve_current_session_id() -> str | None:
     return None
 
 
-def active_state_path(codex_root: Path) -> Path:
-    return codex_root / "state" / "integrated-memory-rules" / "active-project.json"
+def state_store_candidates(codex_root: Path) -> list[tuple[str, Path]]:
+    return [
+        ("root", codex_root / "state" / "integrated-memory-rules"),
+        ("memories_fallback", codex_root / "memories" / "integrated-memory-rules" / "state"),
+    ]
 
 
-def load_active_state(codex_root: Path) -> dict | None:
-    path = active_state_path(codex_root)
+def ensure_writable_directory(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    probe = path / ".write-probe"
+    probe.write_text("ok", encoding="utf-8")
+    probe.unlink()
+
+
+def resolve_state_store(codex_root: Path) -> StateStore:
+    skipped: list[dict[str, str]] = []
+    last_error: Exception | None = None
+    for mode, root in state_store_candidates(codex_root):
+        try:
+            ensure_writable_directory(root)
+            reason = skipped[-1]["error"] if skipped else None
+            return StateStore(root=root, mode=mode, fallback_reason=reason)
+        except (OSError, PermissionError) as exc:
+            last_error = exc
+            skipped.append({"mode": mode, "path": str(root), "error": str(exc)})
+            continue
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("failed to resolve writable state store")
+
+
+def active_state_path(state_store: StateStore) -> Path:
+    return state_store.root / "active-project.json"
+
+
+def load_active_state(state_store: StateStore) -> dict | None:
+    path = active_state_path(state_store)
     if not path.exists():
         return None
     try:
@@ -86,15 +126,15 @@ def load_active_state(codex_root: Path) -> dict | None:
         return None
 
 
-def save_active_state(codex_root: Path, payload: dict) -> Path:
-    path = active_state_path(codex_root)
+def save_active_state(state_store: StateStore, payload: dict) -> Path:
+    path = active_state_path(state_store)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path
 
 
-def clear_active_state(codex_root: Path) -> None:
-    path = active_state_path(codex_root)
+def clear_active_state(state_store: StateStore) -> None:
+    path = active_state_path(state_store)
     if path.exists():
         path.unlink()
 
@@ -200,13 +240,14 @@ def build_project_transcript(
     }
 
 
-def project_transcript_path(codex_root: Path, session_id: str) -> Path:
+def project_transcript_path(state_store: StateStore, session_id: str) -> Path:
     digest = hashlib.sha1(session_id.encode("utf-8")).hexdigest()[:16]
-    return codex_root / "state" / "integrated-memory-rules" / "project-transcripts" / f"{digest}.json"
+    return state_store.root / "project-transcripts" / f"{digest}.json"
 
 
 def finalize_previous_project_session(
     codex_root: Path,
+    state_store: StateStore,
     previous_state: dict,
     ended_at: datetime,
 ) -> dict | None:
@@ -243,7 +284,7 @@ def finalize_previous_project_session(
             "rollout_jsonl": str(rollout_path),
         }
 
-    transcript_path = project_transcript_path(codex_root, previous_logical_session_id)
+    transcript_path = project_transcript_path(state_store, previous_logical_session_id)
     transcript_path.parent.mkdir(parents=True, exist_ok=True)
     transcript_path.write_text(json.dumps(transcript_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -299,20 +340,25 @@ def main(argv: list[str] | None = None) -> int:
 
     now = utc_now()
     current_session_id = resolve_current_session_id()
-    previous_state = load_active_state(codex_root)
+    state_store = resolve_state_store(codex_root)
+    previous_state = load_active_state(state_store)
 
     result: dict[str, object] = {
         "integrated_root": str(ROOT),
         "codex_root": str(codex_root),
         "project": str(project),
+        "state_storage_mode": state_store.mode,
+        "state_storage_path": str(state_store.root),
     }
+    if state_store.fallback_reason:
+        result["state_storage_fallback_reason"] = state_store.fallback_reason
 
     if (
         not args.skip_switch_finalize
         and previous_state
         and previous_state.get("project") != str(project)
     ):
-        auto_finalize_result = finalize_previous_project_session(codex_root, previous_state, now)
+        auto_finalize_result = finalize_previous_project_session(codex_root, state_store, previous_state, now)
         if auto_finalize_result is not None:
             result["auto_finalize"] = auto_finalize_result
 
@@ -391,9 +437,9 @@ def main(argv: list[str] | None = None) -> int:
                 "started_at": isoformat_utc(now),
             }
             result["active_project_state_reused"] = False
-        result["active_project_state"] = str(save_active_state(codex_root, state_payload))
+        result["active_project_state"] = str(save_active_state(state_store, state_payload))
     else:
-        clear_active_state(codex_root)
+        clear_active_state(state_store)
         result["active_project_state"] = None
 
     if args.json:

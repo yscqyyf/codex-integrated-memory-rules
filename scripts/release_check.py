@@ -7,8 +7,8 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
-import tempfile
 import time
+import uuid
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +27,7 @@ def run(command: list[str], cwd: Path | None = None, env: dict[str, str] | None 
         env=merged_env,
         text=True,
         encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
@@ -62,6 +63,14 @@ def write_rollout_message(rollout_path: Path, payload: dict) -> None:
         handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
 
+def make_work_dir() -> Path:
+    base = ROOT / ".tmp" / "release-check"
+    base.mkdir(parents=True, exist_ok=True)
+    path = base / f"run-{uuid.uuid4().hex}"
+    path.mkdir()
+    return path
+
+
 def run_integrate(project: Path, codex_root: Path, env: dict[str, str]) -> dict:
     result = run(
         [
@@ -80,15 +89,70 @@ def run_integrate(project: Path, codex_root: Path, env: dict[str, str]) -> dict:
     return json.loads(require_ok(f"integrate_project({project.name})", result))
 
 
+def check_state_fallback(base: Path, ps: str) -> str:
+    codex_root = base / "fallback-codex-root"
+    project = base / "fallback-project"
+    project.mkdir()
+    install = run(
+        [
+            ps,
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(INSTALL),
+            "-CodexRoot",
+            str(codex_root),
+        ],
+        cwd=ROOT,
+    )
+    require_ok("install.ps1 fallback root", install)
+    (codex_root / "state").write_text("not a directory", encoding="utf-8")
+
+    payload = run_integrate(
+        project,
+        codex_root,
+        {
+            "CODEX_THREAD_ID": "019releasecheck-fallback",
+            "PRUNE_MEM_SKILL_STATE_ROOT": str(codex_root / "memories" / "prune-mem-skill"),
+        },
+    )
+    if payload.get("state_storage_mode") != "memories_fallback":
+        raise RuntimeError(f"state fallback was not used: {payload}")
+    active_state = str(payload.get("active_project_state") or "")
+    if "\\memories\\integrated-memory-rules\\state\\" not in active_state:
+        raise RuntimeError(f"active state was not written to memories fallback: {payload}")
+    if not payload.get("state_storage_fallback_reason"):
+        raise RuntimeError(f"fallback reason missing: {payload}")
+    doctor = run(
+        [
+            sys.executable,
+            str(DOCTOR),
+            "--codex-root",
+            str(codex_root),
+        ],
+        cwd=ROOT,
+    )
+    doctor_payload = json.loads(require_ok("doctor.py fallback root", doctor))
+    if not doctor_payload.get("operational_ok"):
+        raise RuntimeError(f"doctor fallback root should be operational: {doctor_payload}")
+    if doctor_payload.get("strict_ok") is True:
+        raise RuntimeError(f"doctor fallback root should not be strict-ok: {doctor_payload}")
+    state_check = doctor_payload.get("checks", {}).get("integrated_state", {})
+    if state_check.get("storage_mode") != "memories_fallback":
+        raise RuntimeError(f"doctor did not report state fallback: {doctor_payload}")
+    return payload["state_storage_mode"]
+
+
 def main() -> int:
     ps = powershell_executable()
-    with tempfile.TemporaryDirectory(prefix="codex-integrated-memory-rules-") as temp_dir:
-        base = Path(temp_dir)
+    base = make_work_dir()
+    try:
         codex_root = base / "codex-root"
         project_a = base / "project-a"
         project_b = base / "project-b"
         project_a.mkdir()
         project_b.mkdir()
+        state_fallback = check_state_fallback(base, ps)
 
         install = run(
             [
@@ -208,11 +272,14 @@ def main() -> int:
                 "same_project_reentry": second_same.get("active_project_state_reused"),
                 "switch_auto_finalize": auto_finalize.get("status"),
                 "switch_rulekit": third_switch.get("rulekit", {}).get("status"),
+                "state_fallback": state_fallback,
             },
             "codex_root": str(codex_root),
         }
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
+    finally:
+        shutil.rmtree(base, ignore_errors=True)
 
 
 if __name__ == "__main__":

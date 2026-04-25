@@ -4,5 +4,7 @@
 *.egg-info/
 .pytest_cache/
 .tmp/
+.codex/
+/AGENTS.md
 Thumbs.db
 Desktop.ini

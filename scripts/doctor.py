@@ -39,6 +39,7 @@ def run_rulekit(args: list[str], codex_root: Path) -> subprocess.CompletedProces
         env=env,
         text=True,
         encoding="utf-8",
+        errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
@@ -55,6 +56,32 @@ def catalog_status(codex_root: Path) -> dict[str, object]:
         "catalog_hash": payload.get("catalog_hash"),
         "storage_mode": payload.get("storage_mode"),
         "catalog_path": payload.get("catalog_path"),
+        "fallback_reason": payload.get("storage_fallback_reason"),
+    }
+
+
+def state_status(codex_root: Path) -> dict[str, object]:
+    root_state = can_write(codex_root / "state" / "integrated-memory-rules")
+    if root_state["ok"]:
+        return {
+            "ok": True,
+            "storage_mode": "root",
+            "path": root_state["path"],
+        }
+    fallback = can_write(codex_root / "memories" / "integrated-memory-rules" / "state")
+    if fallback["ok"]:
+        return {
+            "ok": True,
+            "storage_mode": "memories_fallback",
+            "path": fallback["path"],
+            "fallback_reason": root_state.get("error"),
+        }
+    return {
+        "ok": False,
+        "storage_mode": None,
+        "path": fallback["path"],
+        "error": fallback.get("error"),
+        "root_error": root_state.get("error"),
     }
 
 
@@ -74,10 +101,48 @@ def main(argv: list[str] | None = None) -> int:
         "codex_root_writable": can_write(codex_root),
         "rule_library_writable": can_write(codex_root / "rule-library"),
         "catalog": catalog_status(codex_root),
+        "integrated_state": state_status(codex_root),
     }
-    ok = all(bool(item.get("ok")) for item in checks.values())
-    print(json.dumps({"ok": ok, "checks": checks}, ensure_ascii=False, indent=2))
-    return 0 if ok else 1
+    strict_ok = (
+        all(bool(item.get("ok")) for item in checks.values())
+        and checks["catalog"].get("storage_mode") == "root"
+        and checks["integrated_state"].get("storage_mode") == "root"
+    )
+    operational_ok = all(
+        bool(checks[name].get("ok"))
+        for name in (
+            "python",
+            "root",
+            "prune_mem_skill_source",
+            "installed_prune_mem_skill",
+            "rulekit_source",
+            "rule_library",
+            "catalog",
+            "integrated_state",
+        )
+    )
+    warnings = []
+    if not checks["codex_root_writable"]["ok"]:
+        warnings.append("codex_root is not directly writable; helpers must use fallback storage.")
+    if checks["catalog"].get("storage_mode") == "memories_fallback":
+        warnings.append("rulekit catalog uses memories_fallback storage.")
+    if checks["integrated_state"].get("storage_mode") == "memories_fallback":
+        warnings.append("integrated project state uses memories_fallback storage.")
+
+    print(
+        json.dumps(
+            {
+                "ok": operational_ok,
+                "strict_ok": strict_ok,
+                "operational_ok": operational_ok,
+                "warnings": warnings,
+                "checks": checks,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+    return 0 if operational_ok else 1
 
 
 if __name__ == "__main__":

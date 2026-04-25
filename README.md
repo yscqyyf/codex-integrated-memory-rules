@@ -85,6 +85,9 @@ python .\scripts\doctor.py
 - 已安装 skill
 - rule-library 存在与可写性
 - catalog 构建状态
+- 集成状态存储可写性
+
+`ok=true` 表示当前环境可运行；`strict_ok=false` 但 `operational_ok=true` 表示部分路径不可直接写入，已使用 `memories_fallback` 降级存储。
 
 ## 发布前自检
 
