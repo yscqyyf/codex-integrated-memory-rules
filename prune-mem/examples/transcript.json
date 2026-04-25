@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "session_id": "transcript-demo-1",
+  "summary": "User described the project and asked for a future default response style.",
+  "tags": ["memory", "project", "communication"],
+  "messages": [
+    {
+      "role": "user",
+      "turn_id": "t1",
+      "content": "I am working on a pruning-first assistant memory project."
+    },
+    {
+      "role": "assistant",
+      "turn_id": "t2",
+      "content": "I will keep the implementation focused on durable memories and recall quality."
+    },
+    {
+      "role": "user",
+      "turn_id": "t3",
+      "content": "Default to concise Chinese responses."
+    }
+  ]
+}
