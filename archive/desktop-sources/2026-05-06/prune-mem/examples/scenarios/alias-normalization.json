@@ -1,0 +1,15 @@
+{
+  "name": "alias-normalization",
+  "steps": [
+    {
+      "type": "extract",
+      "input": "alias-payload.json"
+    },
+    {
+      "type": "assert_value",
+      "slot_key": "response_style",
+      "status": "active",
+      "value": "Concise answers"
+    }
+  ]
+}

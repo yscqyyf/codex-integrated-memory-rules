@@ -1,0 +1,22 @@
+{
+  "session": {
+    "session_id": "demo-session-5",
+    "summary": "A weak implicit signal suggests longer answers, but it is unstable.",
+    "tags": ["communication"]
+  },
+  "candidates": [
+    {
+      "summary": "User may want longer answers in some cases",
+      "value": "Long answers",
+      "category": "communication",
+      "source_level": "implicit",
+      "importance": 0.75,
+      "confidence": 0.82,
+      "stability": 0.62,
+      "slot_key": "answer_style",
+      "tags": ["communication", "style"],
+      "turn_ids": ["turn-overwrite-2"],
+      "evidence_count": 2
+    }
+  ]
+}

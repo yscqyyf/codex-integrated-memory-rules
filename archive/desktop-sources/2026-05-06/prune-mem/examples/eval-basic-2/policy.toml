@@ -1,0 +1,12 @@
+[policy]
+min_importance = 0.55
+min_confidence = 0.70
+min_stability = 0.60
+implicit_min_evidence = 2
+stale_after_days = 30
+archive_after_days = 90
+max_recall_items = 8
+per_category_limit = 2
+token_budget = 900
+active_health_floor = 0.50
+archive_health_floor = 0.20

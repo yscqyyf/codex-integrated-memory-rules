@@ -39,7 +39,9 @@ def scan_project_snapshot(project_root: Path) -> dict[str, Any]:
             lowered = filename.lower()
             if ext in UI_EXTENSIONS and len(interesting_ui_paths) < 50:
                 interesting_ui_paths.append(rel)
-            if any(token in lowered for token in ("game", "battle", "enemy", "player", "sprite", "weapon", "tank")):
+            if ext in UI_EXTENSIONS and any(
+                token in lowered for token in ("game", "battle", "enemy", "player", "sprite", "weapon", "tank")
+            ):
                 game_named_hits.append(rel)
 
     return {
@@ -305,7 +307,7 @@ def profile_needs_refresh(profile: dict[str, Any]) -> bool:
         return bool(context.startswith("Auto-generated draft.") or tags == ["general"])
     if saved_fingerprint != profile_fingerprint(profile):
         return False
-    return bool(context.startswith("Auto-generated draft.") or tags == ["general"])
+    return True
 
 
 def refresh_profile(

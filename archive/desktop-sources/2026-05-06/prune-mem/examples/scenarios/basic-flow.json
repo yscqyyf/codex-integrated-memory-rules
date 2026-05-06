@@ -1,0 +1,20 @@
+{
+  "name": "basic-flow",
+  "steps": [
+    {
+      "type": "extract",
+      "input": "extract-payload.json"
+    },
+    {
+      "type": "recall",
+      "tags": ["memory", "communication"],
+      "min_count": 2,
+      "expect_slots": ["response_style", "current_project"]
+    },
+    {
+      "type": "assert_status",
+      "slot_key": "response_style",
+      "status": "active"
+    }
+  ]
+}

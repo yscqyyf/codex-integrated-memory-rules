@@ -1,0 +1,21 @@
+{
+  "session": {
+    "session_id": "demo-session-6",
+    "summary": "The model guessed a visual preference without explicit user confirmation.",
+    "tags": ["preference"]
+  },
+  "candidates": [
+    {
+      "summary": "User may like colorful UI",
+      "value": "Likes colorful UI",
+      "category": "preference",
+      "source_level": "inferred",
+      "importance": 0.65,
+      "confidence": 0.55,
+      "stability": 0.4,
+      "slot_key": "ui_taste",
+      "tags": ["ui", "preference"],
+      "turn_ids": ["turn-inf-1"]
+    }
+  ]
+}

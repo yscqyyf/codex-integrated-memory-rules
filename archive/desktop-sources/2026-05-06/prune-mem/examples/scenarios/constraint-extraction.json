@@ -1,0 +1,14 @@
+{
+  "name": "constraint-extraction",
+  "steps": [
+    {
+      "type": "transcript_extract",
+      "input": "constraint-transcript.json"
+    },
+    {
+      "type": "assert_status",
+      "slot_key": "",
+      "status": "active"
+    }
+  ]
+}

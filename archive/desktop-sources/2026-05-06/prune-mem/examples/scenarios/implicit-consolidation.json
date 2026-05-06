@@ -1,0 +1,23 @@
+{
+  "name": "implicit-consolidation",
+  "steps": [
+    {
+      "type": "extract",
+      "input": "consolidate-payload.json"
+    },
+    {
+      "type": "consolidate"
+    },
+    {
+      "type": "assert_status",
+      "slot_key": "primary_terminal_workflow",
+      "status": "active"
+    },
+    {
+      "type": "recall",
+      "tags": ["tooling"],
+      "min_count": 1,
+      "expect_slots": ["primary_terminal_workflow"]
+    }
+  ]
+}

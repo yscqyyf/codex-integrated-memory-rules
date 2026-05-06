@@ -1,0 +1,21 @@
+{
+  "session": {
+    "session_id": "demo-session-7",
+    "summary": "User states a response-style preference using an alias slot key.",
+    "tags": ["communication"]
+  },
+  "candidates": [
+    {
+      "summary": "User explicitly wants concise answers",
+      "value": "Concise answers",
+      "category": "wrong-category",
+      "source_level": "explicit",
+      "importance": 0.95,
+      "confidence": 0.99,
+      "stability": 0.95,
+      "slot_key": "answer_style",
+      "tags": ["communication", "style"],
+      "turn_ids": ["turn-alias-1"]
+    }
+  ]
+}

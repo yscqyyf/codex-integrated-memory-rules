@@ -1,0 +1,107 @@
+{
+  "export_format_version": 1,
+  "schema_version": 1,
+  "policy_toml": "[policy]\nmin_importance = 0.55\nmin_confidence = 0.70\nmin_stability = 0.60\nimplicit_min_evidence = 2\nstale_after_days = 30\narchive_after_days = 90\nmax_recall_items = 8\nper_category_limit = 2\ntoken_budget = 900\nactive_health_floor = 0.50\narchive_health_floor = 0.20\ndedupe_similarity_threshold = 0.78\n",
+  "slots_toml": "[slot.response_style]\ncategory = \"communication\"\ndisplay_name = \"Response Style\"\npriority = 100\naliases = [\"answer_style\"]\noverwrite_mode = \"replace\"\nstability_floor = 0.70\nper_slot_limit = 1\n\n[slot.current_project]\ncategory = \"project\"\ndisplay_name = \"Current Project\"\npriority = 90\naliases = [\"active_project\"]\noverwrite_mode = \"replace\"\nstability_floor = 0.70\nper_slot_limit = 1\n\n[slot.primary_terminal_workflow]\ncategory = \"tooling\"\ndisplay_name = \"Primary Terminal Workflow\"\npriority = 80\naliases = [\"terminal_workflow\"]\noverwrite_mode = \"reinforce\"\nstability_floor = 0.65\nper_slot_limit = 1\n",
+  "meta": {
+    "schema_version": 1
+  },
+  "profile": "# Profile\n\n## communication\n\n- `Response Style (response_style)`: 默认用简洁中文回答。\n\n## project\n\n- `Current Project (current_project)`: 一个 pruning-first 的个人助理记忆项目。\n",
+  "sessions": [
+    {
+      "session_id": "transcript-demo-1",
+      "summary": "User described the project and asked for future default behavior.",
+      "tags": [
+        "memory",
+        "project",
+        "communication"
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "timestamp": "2026-04-17T09:48:21.357696+00:00",
+      "run_id": "ea02c17c-223a-465f-b81f-a457aa979b3f",
+      "event_type": "admission",
+      "action": "accept",
+      "reason": "memory passed admission gates",
+      "memory_id": "7a05ac54-ec00-4e09-977a-74c280061d1a",
+      "slot_key": "current_project",
+      "category": "project",
+      "status": "active"
+    },
+    {
+      "timestamp": "2026-04-17T09:48:21.358832+00:00",
+      "run_id": "5ab77f93-2a8e-4387-b141-9467e902b615",
+      "event_type": "admission",
+      "action": "accept",
+      "reason": "memory passed admission gates",
+      "memory_id": "cf0c4903-6db9-4b46-9940-85257726463e",
+      "slot_key": "response_style",
+      "category": "communication",
+      "status": "active"
+    }
+  ],
+  "memories": [
+    {
+      "summary": "User is working on: 一个 pruning-first 的个人助理记忆项目。",
+      "value": "一个 pruning-first 的个人助理记忆项目。",
+      "category": "project",
+      "source_level": "explicit",
+      "importance": 0.9,
+      "confidence": 0.94,
+      "stability": 0.9,
+      "slot_key": "current_project",
+      "tags": [
+        "communication",
+        "memory",
+        "project"
+      ],
+      "turn_ids": [
+        "t1"
+      ],
+      "evidence_count": 1,
+      "frequency": 1,
+      "access_count": 0,
+      "status": "active",
+      "memory_id": "7a05ac54-ec00-4e09-977a-74c280061d1a",
+      "first_seen_at": "2026-04-17T09:48:21.357526+00:00",
+      "last_seen_at": "2026-04-17T09:48:21.357528+00:00",
+      "last_accessed_at": null,
+      "retired_by": null,
+      "notes": [
+        "admitted as active memory"
+      ]
+    },
+    {
+      "summary": "User expressed communication: 默认用简洁中文回答。",
+      "value": "默认用简洁中文回答。",
+      "category": "communication",
+      "source_level": "explicit",
+      "importance": 0.92,
+      "confidence": 0.96,
+      "stability": 0.95,
+      "slot_key": "response_style",
+      "tags": [
+        "communication",
+        "memory",
+        "project"
+      ],
+      "turn_ids": [
+        "t3"
+      ],
+      "evidence_count": 1,
+      "frequency": 1,
+      "access_count": 0,
+      "status": "active",
+      "memory_id": "cf0c4903-6db9-4b46-9940-85257726463e",
+      "first_seen_at": "2026-04-17T09:48:21.358624+00:00",
+      "last_seen_at": "2026-04-17T09:48:21.358625+00:00",
+      "last_accessed_at": null,
+      "retired_by": null,
+      "notes": [
+        "admitted as active memory"
+      ]
+    }
+  ]
+}

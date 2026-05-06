@@ -1,0 +1,19 @@
+{
+  "name": "slot-overwrite",
+  "steps": [
+    {
+      "type": "extract",
+      "input": "overwrite-payload-base.json"
+    },
+    {
+      "type": "extract",
+      "input": "overwrite-payload-conflict.json"
+    },
+    {
+      "type": "assert_value",
+      "slot_key": "response_style",
+      "status": "active",
+      "value": "Concise answers"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "session_id": "transcript-demo-1",
+  "summary": "User described the project and asked for future default behavior.",
+  "tags": ["memory", "project", "communication"],
+  "messages": [
+    {
+      "role": "user",
+      "turn_id": "t1",
+      "content": "我在做一个 pruning-first 的个人助理记忆项目。"
+    },
+    {
+      "role": "assistant",
+      "turn_id": "t2",
+      "content": "我会把重点放在修剪、覆盖和召回预算。"
+    },
+    {
+      "role": "user",
+      "turn_id": "t3",
+      "content": "以后请默认用简洁中文回答。"
+    }
+  ]
+}

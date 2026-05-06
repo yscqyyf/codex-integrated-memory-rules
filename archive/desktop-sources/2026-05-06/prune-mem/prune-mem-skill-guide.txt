@@ -1,0 +1,161 @@
+prune-mem-skill User Guide
+==========================
+
+What this skill is
+------------------
+prune-mem-skill is a local memory skill for Codex.
+
+Its job is to help Codex:
+- remember stable user preferences
+- remember long-running project context
+- remember durable constraints
+- load those memories at session start
+- summarize and update memory at session end
+- prune low-value memory after session writeback
+
+What it is not
+--------------
+It is not a cloud service.
+It is not a separate chat app.
+It is not a second assistant.
+
+It is a local memory layer that Codex can use while working with you.
+
+How automatic it is
+-------------------
+This skill is designed to behave like a session-level automatic trigger:
+
+1. When a session starts, Codex should recall durable memory once.
+2. During the session, Codex should use that context silently.
+3. When the session ends, Codex should summarize the whole transcript, extract durable memory, write it back, and prune.
+
+This is not a platform-native hook.
+It is a skill-driven workflow.
+That means Codex follows the memory routine because the skill tells it to, not because the platform exposes an official session lifecycle API.
+
+Primary session lifecycle commands
+----------------------------------
+Session start:
+python ~/.codex/skills/prune-mem-skill/scripts/session_start.py --tag communication --tag project --tag preference --tag constraint --tag tooling
+
+Session end:
+python ~/.codex/skills/prune-mem-skill/scripts/session_end.py <session-transcript.json>
+
+These are the main commands for automatic behavior.
+
+Secondary helper commands
+-------------------------
+These still exist, but they are fallback helpers rather than the primary lifecycle:
+- prepare_context.py
+- remember_text.py
+- remember_transcript.py
+- maintain_memory.py
+
+What works with zero extra configuration
+----------------------------------------
+After installation, the skill already works in local heuristic mode.
+
+That means it can still remember very explicit things such as:
+- "Use concise Chinese by default."
+- "I am building a pruning-first assistant memory project."
+- "Do not write overly long explanations."
+
+This is enough to test the memory workflow end to end.
+
+When model configuration matters
+--------------------------------
+If you want stronger memory extraction, the skill can also try a real model backend.
+
+The skill will:
+1. first check its own local config
+2. then check Codex config
+3. then check Codex auth
+4. if that path fails, it can fall back to heuristic mode
+
+So the skill is usable even without an external model path.
+
+Where the skill stores data
+---------------------------
+Installed skill path:
+~/.codex/skills/prune-mem-skill
+
+Default memory state path:
+~/.codex/memories/prune-mem-skill
+
+Default workspace path:
+~/.codex/memories/prune-mem-skill/workspace
+
+What files are stored
+---------------------
+The workspace stores:
+- memories.jsonl
+- sessions.jsonl
+- decisions.jsonl
+- usage_eval.jsonl
+- profile.md
+- meta.json
+- policy.toml
+- slots.toml
+
+Most useful commands
+--------------------
+Start a session and load memory:
+python ~/.codex/skills/prune-mem-skill/scripts/session_start.py --tag communication --tag project --tag preference --tag constraint --tag tooling
+
+End a session and update memory from the whole transcript:
+python ~/.codex/skills/prune-mem-skill/scripts/session_end.py <session-transcript.json>
+
+Remember a transcript without full session-end flow:
+python ~/.codex/skills/prune-mem-skill/scripts/remember_transcript.py <transcript.json>
+
+Prepare memory context before answering:
+python ~/.codex/skills/prune-mem-skill/scripts/prepare_context.py communication project
+
+Remember raw user text:
+python ~/.codex/skills/prune-mem-skill/scripts/remember_text.py "Use concise Chinese by default." communication
+
+Run pruning:
+python ~/.codex/skills/prune-mem-skill/scripts/maintain_memory.py
+
+See a compact report:
+python ~/.codex/skills/prune-mem-skill/scripts/run_prune_mem.py report --emit
+
+Explain why a memory was kept or recalled:
+python ~/.codex/skills/prune-mem-skill/scripts/run_prune_mem.py explain --slot-key response_style --emit
+
+Export memory:
+python ~/.codex/skills/prune-mem-skill/scripts/run_prune_mem.py export --output ./export.json
+
+Import memory:
+python ~/.codex/skills/prune-mem-skill/scripts/run_prune_mem.py import --input ./export.json --emit
+
+How to think about this skill
+-----------------------------
+This skill is strongest as:
+- a local personal memory layer
+- a durable project and context memory helper
+- a pruning-first memory engine
+
+Its main strength is not "remember every turn".
+Its main strength is:
+"load once per session, update once per session, keep only the right things."
+
+Current boundary
+----------------
+The skill is already usable and installable.
+
+But one platform boundary still matters:
+- Codex does not expose a guaranteed native session-open or session-close hook for third-party skills
+
+So this skill gets close to automatic behavior, but it is still an instruction-level workflow rather than a platform-enforced lifecycle plugin.
+
+Practical summary
+-----------------
+You can use it now.
+It stores memory locally.
+It can load context at session start.
+It can summarize and remember at session end.
+It records lifecycle events in usage_eval.jsonl.
+It can export and import memory.
+It can be used without extra model configuration.
+It works best when Codex follows the session lifecycle consistently.

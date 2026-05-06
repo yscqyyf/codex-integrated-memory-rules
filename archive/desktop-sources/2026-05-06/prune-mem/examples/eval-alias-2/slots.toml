@@ -1,0 +1,26 @@
+[slot.response_style]
+category = "communication"
+display_name = "Response Style"
+priority = 100
+aliases = ["answer_style"]
+overwrite_mode = "replace"
+stability_floor = 0.70
+per_slot_limit = 1
+
+[slot.current_project]
+category = "project"
+display_name = "Current Project"
+priority = 90
+aliases = ["active_project"]
+overwrite_mode = "replace"
+stability_floor = 0.70
+per_slot_limit = 1
+
+[slot.primary_terminal_workflow]
+category = "tooling"
+display_name = "Primary Terminal Workflow"
+priority = 80
+aliases = ["terminal_workflow"]
+overwrite_mode = "reinforce"
+stability_floor = 0.65
+per_slot_limit = 1

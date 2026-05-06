@@ -1,0 +1,14 @@
+{
+  "name": "reject-inferred",
+  "steps": [
+    {
+      "type": "extract",
+      "input": "reject-inferred-payload.json"
+    },
+    {
+      "type": "assert_status",
+      "slot_key": "ui_taste",
+      "status": "rejected"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "session": {
+    "session_id": "demo-session-2",
+    "summary": "User repeatedly uses WezTerm and Neovim for the same workflow.",
+    "tags": ["tooling", "workflow"]
+  },
+  "candidates": [
+    {
+      "summary": "User often uses WezTerm and Neovim together",
+      "value": "Uses WezTerm plus Neovim as a regular workflow",
+      "category": "tooling",
+      "source_level": "implicit",
+      "importance": 0.72,
+      "confidence": 0.80,
+      "stability": 0.76,
+      "slot_key": "primary_terminal_workflow",
+      "tags": ["tooling", "terminal", "workflow"],
+      "turn_ids": ["turn-a"],
+      "evidence_count": 1
+    },
+    {
+      "summary": "User often uses WezTerm and Neovim together",
+      "value": "Uses WezTerm plus Neovim as a regular workflow",
+      "category": "tooling",
+      "source_level": "implicit",
+      "importance": 0.72,
+      "confidence": 0.80,
+      "stability": 0.76,
+      "slot_key": "primary_terminal_workflow",
+      "tags": ["tooling", "terminal", "workflow"],
+      "turn_ids": ["turn-b"],
+      "evidence_count": 1
+    }
+  ]
+}

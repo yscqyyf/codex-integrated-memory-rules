@@ -1,0 +1,33 @@
+{
+  "session": {
+    "session_id": "demo-session-1",
+    "summary": "User asked for a pruning-first memory project and prefers concise Chinese responses.",
+    "tags": ["project", "memory", "communication"]
+  },
+  "candidates": [
+    {
+      "summary": "User prefers concise Chinese responses",
+      "value": "Default to concise Chinese responses",
+      "category": "communication",
+      "source_level": "explicit",
+      "importance": 0.95,
+      "confidence": 0.98,
+      "stability": 0.95,
+      "slot_key": "response_style",
+      "tags": ["language", "style", "communication"],
+      "turn_ids": ["turn-1"]
+    },
+    {
+      "summary": "User is building a pruning-first assistant memory project",
+      "value": "Building a pruning-first assistant memory project",
+      "category": "project",
+      "source_level": "explicit",
+      "importance": 0.92,
+      "confidence": 0.96,
+      "stability": 0.90,
+      "slot_key": "current_project",
+      "tags": ["project", "memory", "assistant"],
+      "turn_ids": ["turn-2"]
+    }
+  ]
+}

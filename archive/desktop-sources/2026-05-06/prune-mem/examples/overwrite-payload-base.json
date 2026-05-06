@@ -1,0 +1,21 @@
+{
+  "session": {
+    "session_id": "demo-session-4",
+    "summary": "User explicitly asks for concise answers.",
+    "tags": ["communication"]
+  },
+  "candidates": [
+    {
+      "summary": "User explicitly wants concise answers",
+      "value": "Concise answers",
+      "category": "communication",
+      "source_level": "explicit",
+      "importance": 0.95,
+      "confidence": 0.99,
+      "stability": 0.95,
+      "slot_key": "response_style",
+      "tags": ["communication", "style"],
+      "turn_ids": ["turn-overwrite-1"]
+    }
+  ]
+}

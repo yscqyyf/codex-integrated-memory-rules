@@ -1,0 +1,22 @@
+{
+  "name": "prune-stale",
+  "steps": [
+    {
+      "type": "extract",
+      "input": "prune-payload.json"
+    },
+    {
+      "type": "age_slot",
+      "slot_key": "secondary_notebook",
+      "days_ago": 45
+    },
+    {
+      "type": "prune"
+    },
+    {
+      "type": "assert_status",
+      "slot_key": "secondary_notebook",
+      "status": "stale"
+    }
+  ]
+}

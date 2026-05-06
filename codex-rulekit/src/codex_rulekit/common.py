@@ -60,6 +60,7 @@ IGNORED_SCAN_DIRS = {
     ".tmp-tests",
     ".nuxt",
     ".venv",
+    "archive",
     "build",
     "coverage",
     "dist",

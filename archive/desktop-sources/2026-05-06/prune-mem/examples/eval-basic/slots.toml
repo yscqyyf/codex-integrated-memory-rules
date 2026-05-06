@@ -1,0 +1,17 @@
+[slot.response_style]
+category = "communication"
+display_name = "Response Style"
+priority = 100
+aliases = ["answer_style"]
+
+[slot.current_project]
+category = "project"
+display_name = "Current Project"
+priority = 90
+aliases = ["active_project"]
+
+[slot.primary_terminal_workflow]
+category = "tooling"
+display_name = "Primary Terminal Workflow"
+priority = 80
+aliases = ["terminal_workflow"]

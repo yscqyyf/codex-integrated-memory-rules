@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-05-06T05:12:17.542484Z",
+  "archive_root": "D:\\codex-integrated-memory-rules\\archive\\desktop-sources\\2026-05-06",
+  "excluded": [
+    "*.log",
+    "*.pyc",
+    "*.pyo",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".tmp",
+    ".tmp-tests",
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    "venv"
+  ],
+  "results": [
+    {
+      "label": "prune-mem",
+      "source": "C:\\Users\\admin\\Desktop\\prune-mem",
+      "destination": "D:\\codex-integrated-memory-rules\\archive\\desktop-sources\\2026-05-06\\prune-mem",
+      "status": "already_archived",
+      "files": 400,
+      "bytes": 468232
+    },
+    {
+      "label": "codex-rulekit-testbench",
+      "source": "C:\\Users\\admin\\Desktop\\codex-rulekit-testbench",
+      "destination": "D:\\codex-integrated-memory-rules\\archive\\desktop-sources\\2026-05-06\\codex-rulekit-testbench",
+      "status": "already_archived",
+      "files": 22,
+      "bytes": 44766
+    },
+    {
+      "label": "codex-rulekit",
+      "source": "C:\\Users\\admin\\Desktop\\codex-rulekit",
+      "destination": "D:\\codex-integrated-memory-rules\\archive\\desktop-sources\\2026-05-06\\codex-rulekit",
+      "status": "already_archived",
+      "files": 229,
+      "bytes": 533403
+    }
+  ]
+}

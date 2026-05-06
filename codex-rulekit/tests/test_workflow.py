@@ -272,6 +272,21 @@ class WorkflowTest(unittest.TestCase):
         self.assertTrue({"frontend", "html", "css", "javascript", "browser-game"}.issubset(tags))
         self.assertIn("static frontend project", profile["context_description"].lower())
 
+    def test_infer_profile_ignores_rule_template_game_names(self) -> None:
+        _, project = self._make_case()
+        (project / "pyproject.toml").write_text("[project]\nname = 'tooling'\n", encoding="utf-8")
+        template_dir = project / "src" / "codex_rulekit" / "templates" / "rule-library" / "curated" / "frontend"
+        template_dir.mkdir(parents=True)
+        (template_dir / "browser-game-frontend.md").write_text("Rule text.", encoding="utf-8")
+
+        snapshot = scan_project_snapshot(project)
+        profile = infer_profile(project, snapshot=snapshot)
+
+        self.assertEqual(snapshot["game_named_hits"], [])
+        self.assertIn("python", profile["tags"])
+        self.assertNotIn("browser-game", profile["tags"])
+        self.assertNotIn("game-ui", profile["tags"])
+
     def test_infer_profile_detects_nested_frontend_structure(self) -> None:
         root, project = self._make_case()
         bootstrap_library(root, overwrite=False)
@@ -369,6 +384,45 @@ class WorkflowTest(unittest.TestCase):
         profile_after = load_profile(codex_dir / "project-profile.yaml")
         self.assertEqual(profile_after["tags"], ["python", "windows"])
         self.assertEqual(profile_after["context_description"], "User tuned profile.")
+
+    def test_matching_generated_profile_refreshes_after_detector_change(self) -> None:
+        root, project = self._make_case()
+        bootstrap_library(root, overwrite=False)
+        (project / "pyproject.toml").write_text("[project]\nname = 'tooling'\n", encoding="utf-8")
+        template_dir = project / "src" / "codex_rulekit" / "templates" / "rule-library" / "curated" / "frontend"
+        template_dir.mkdir(parents=True)
+        (template_dir / "browser-game-frontend.md").write_text("Rule text.", encoding="utf-8")
+        codex_dir = project / ".codex"
+        codex_dir.mkdir(parents=True, exist_ok=True)
+        generated_profile = annotate_generated_profile(
+            {
+                "name": "demo-project",
+                "project_type": "coding",
+                "risk_level": "low",
+                "tags": ["browser-game", "game-ui", "python"],
+                "context_description": "Detected browser-game style files or gameplay-oriented asset names. Detected Python project files.",
+                "force_include": [],
+                "exclude_rules": [],
+                "_profile_meta": {
+                    "managed_by": "codex-rulekit",
+                    "inference_version": 2,
+                    "auto_generated": True,
+                },
+            }
+        )
+        (codex_dir / "project-profile.yaml").write_text(dump_yaml(generated_profile), encoding="utf-8")
+
+        ensure_project_integration(
+            library_root=root,
+            project_root=project,
+            limit=6,
+            generator_version="test",
+            overwrite_agents=False,
+        )
+        profile_after = load_profile(codex_dir / "project-profile.yaml")
+        self.assertIn("python", profile_after["tags"])
+        self.assertNotIn("browser-game", profile_after["tags"])
+        self.assertNotIn("game-ui", profile_after["tags"])
 
     def test_legacy_auto_generated_profile_without_fingerprint_refreshes_once(self) -> None:
         root, project = self._make_case()
@@ -502,6 +556,11 @@ class WorkflowTest(unittest.TestCase):
         temp_dir = project / "tmp" / "fixture-ui"
         temp_dir.mkdir(parents=True, exist_ok=True)
         (temp_dir / "battle-screen.png").write_text("fake", encoding="utf-8")
+        archive_dir = project / "archive" / "desktop-sources" / "old-web"
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        (archive_dir / "index.html").write_text("<!doctype html>", encoding="utf-8")
+        (archive_dir / "styles.css").write_text("body {}", encoding="utf-8")
+        (archive_dir / "game.js").write_text("console.log('old')", encoding="utf-8")
 
         snapshot = scan_project_snapshot(project)
         self.assertEqual(snapshot["ext_counts"].get(".html", 0), 0)

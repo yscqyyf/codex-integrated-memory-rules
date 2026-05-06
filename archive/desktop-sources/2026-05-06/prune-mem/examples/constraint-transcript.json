@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "session_id": "transcript-constraint-1",
+  "summary": "User asks the assistant to avoid a response pattern.",
+  "tags": ["constraint", "communication"],
+  "messages": [
+    {
+      "role": "user",
+      "turn_id": "c1",
+      "content": "不要写太长的解释。"
+    }
+  ]
+}

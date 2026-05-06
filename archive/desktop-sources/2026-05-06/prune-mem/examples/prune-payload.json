@@ -1,0 +1,21 @@
+{
+  "session": {
+    "session_id": "demo-session-3",
+    "summary": "User mentioned a secondary notebook setup in passing.",
+    "tags": ["tooling"]
+  },
+  "candidates": [
+    {
+      "summary": "User sometimes uses a secondary notebook setup",
+      "value": "Secondary notebook setup",
+      "category": "tooling",
+      "source_level": "explicit",
+      "importance": 0.60,
+      "confidence": 0.75,
+      "stability": 0.60,
+      "slot_key": "secondary_notebook",
+      "tags": ["tooling", "notebook"],
+      "turn_ids": ["turn-weak-1"]
+    }
+  ]
+}
