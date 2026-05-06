@@ -114,6 +114,38 @@ python .\scripts\release_check.py
 
 文件位置：`.github/workflows/validate.yml`
 
+## 维护经验
+
+历史来源归档放在 `archive/desktop-sources/<date>/`。归档只保存源码、文档、测试和清单，排除 `.git`、缓存、`.tmp`、`.tmp-tests`、`__pycache__` 等临时内容。
+
+`codex-rulekit` 扫描项目画像时会跳过 `archive/`。历史文件不能参与当前项目画像，否则旧的前端、研究或游戏样例会污染当前项目标签和规则选择。
+
+游戏项目检测只应从 UI 或资产扩展名命中，例如 `.html`、`.js`、`.png`。不要把规则模板、文档或归档里的 `browser-game-frontend.md` 当成真实游戏项目线索。
+
+自动生成且未被用户改过的 `.codex/project-profile.yaml` 可以在检测器修复后刷新；用户手改过的 profile 要保留。刷新规则后至少跑一次：
+
+```powershell
+.\.bin\codex-rulekit.cmd ensure-project --root C:\Users\admin\.codex --project D:\codex-integrated-memory-rules
+```
+
+如果刚把历史文件加入或排除扫描，第一次刷新可能只是在消化扫描差异；再跑一轮稳定扫描，确认 `project_activity_summary` 回到 `No file changes detected since last scan.`。
+
+GitHub push 在这台机器上不一定继承浏览器代理。浏览器走 Windows 用户代理时，Git/curl 仍可能直连失败。先查：
+
+```powershell
+git config --global --get http.proxy
+git config --global --get https.proxy
+netsh winhttp show proxy
+reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable
+reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer
+```
+
+若 Windows 用户代理是 `127.0.0.1:7890` 且端口可用，优先用临时 Git 代理推送，不要默认写全局配置：
+
+```powershell
+git -c http.proxy=http://127.0.0.1:7890 -c https.proxy=http://127.0.0.1:7890 push origin main
+```
+
 ## 目录
 
 ```text
